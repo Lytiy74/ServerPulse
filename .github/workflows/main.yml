@@ -3,13 +3,14 @@ name: Java Build with Maven
 on:
   push:
     branches:
-    - main
+      - main
+    paths:
+      - 'src/**'
+      - 'pom.xml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 21
