@@ -31,6 +31,8 @@ import ua.azaika.serverpulse.dto.auth.SignUpRequestDTO;
 import ua.azaika.serverpulse.dto.auth.UserResponseDTO;
 import ua.azaika.serverpulse.entity.UserEntity;
 
+import java.time.LocalDateTime;
+
 /**
  * @author Andrii Zaika
  */
@@ -46,6 +48,7 @@ public class AuthenticationService {
                 .email(signUpRequestDTO.email())
                 .password(passwordEncoder.encode(signUpRequestDTO.password()))
                 .role(UserEntity.Role.USER)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         return userService.signUp(userEntity);
