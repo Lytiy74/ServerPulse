@@ -22,33 +22,32 @@
  * SOFTWARE.
  */
 
-package ua.azaika.serverpulse.configuration;
+package ua.azaika.serverpulse.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ua.azaika.serverpulse.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import ua.azaika.serverpulse.dto.auth.SignUpRequestDTO;
+import ua.azaika.serverpulse.dto.auth.UserResponseDTO;
+import ua.azaika.serverpulse.entity.UserEntity;
 
 /**
  * @author Andrii Zaika
  */
-
-@Configuration
+@Service
 @RequiredArgsConstructor
-public class SecurityConfiguration {
+public class AuthenticationService {
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    public UserResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
+        UserEntity userEntity = UserEntity.builder()
+                .username(signUpRequestDTO.username())
+                .email(signUpRequestDTO.email())
+                .password(passwordEncoder.encode(signUpRequestDTO.password()))
+                .role(UserEntity.Role.USER)
+                .build();
 
-    @Bean
-    UserDetailsService userDetailsService(UserRepository userRepository) {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User '" + username + "' not found"));
+        return userService.signUp(userEntity);
     }
 }
