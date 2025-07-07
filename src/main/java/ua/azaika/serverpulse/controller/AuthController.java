@@ -24,6 +24,7 @@
 
 package ua.azaika.serverpulse.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,7 +44,7 @@ public class AuthController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/sign-up")
-    public UserResponseDTO signUp(@RequestBody SignUpRequestDTO signUpRequestDTO) {
+    public UserResponseDTO signUp(@Valid @RequestBody SignUpRequestDTO signUpRequestDTO) {
         return authenticationService.signUp(signUpRequestDTO);
     }
 }
