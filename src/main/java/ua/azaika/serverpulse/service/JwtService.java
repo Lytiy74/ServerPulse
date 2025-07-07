@@ -63,7 +63,7 @@ public class JwtService {
         return Jwts.builder().claims(extraClaims) // доп. поля мжт мы захочем в него положить имя своего кота, хз
                 .subject(userDetails.getUsername()) // для кого токен
                 .issuedAt(now) // когда подписали?
-                .expiration(expiry) // когда п*зда токену?)
+                .expiration(expiry) // термін дії токену
                 .signWith(signingKey) // вот тут важно, факт того что мы (сервер) подписали токен,
                 // а выше метод initSigningKey() где мы вставили секрет и сгенерировали SecretKey
                 .compact();
