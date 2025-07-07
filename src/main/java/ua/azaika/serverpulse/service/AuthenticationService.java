@@ -47,7 +47,7 @@ public class AuthenticationService {
                 .username(signUpRequestDTO.username())
                 .email(signUpRequestDTO.email())
                 .password(passwordEncoder.encode(signUpRequestDTO.password()))
-                .role(UserEntity.Role.USER)
+                .role(null) // todo
                 .createdAt(LocalDateTime.now())
                 .build();
 
