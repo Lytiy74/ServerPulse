@@ -24,12 +24,22 @@
 
 package ua.azaika.serverpulse.dto.auth;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.Length;
+
 /**
  * @author Andrii Zaika
  */
 public record SignUpRequestDTO(
+        @Length(min = 3, max = 64)
         String username,
+        @Email
+        @NotBlank
         String email,
+        @Length(min = 8, max = 64)
+        @Size
         String password
 ) {
 }

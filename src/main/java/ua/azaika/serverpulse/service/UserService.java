@@ -40,6 +40,6 @@ public class UserService {
 
     public UserResponseDTO signUp(UserEntity userEntity) {
         UserEntity save = userRepository.save(userEntity);
-        return new UserResponseDTO(save.getUsername()); //todo mapsturct
+        return new UserResponseDTO(save.getUsername()); //todo mapstruct
     }
 }

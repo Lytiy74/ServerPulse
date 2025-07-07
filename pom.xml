@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ua.azaika</groupId>
 	<artifactId>ServerPulse</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<name>ServerPulse</name>
 	<description>ServerPulse</description>
 	<url/>
