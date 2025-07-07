@@ -39,7 +39,6 @@ public record SignUpRequestDTO(
         @NotBlank
         String email,
         @Length(min = 8, max = 64)
-        @Size
         String password
 ) {
 }
