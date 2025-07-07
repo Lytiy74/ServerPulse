@@ -6,3 +6,11 @@ spring:
     url: jdbc:h2:mem:devdb
     username: sa
     password: password
+
+  profiles:
+    active: dev
+
+jwt:
+  secret: "123"
+  token:
+    expirationInMillis: 3600000

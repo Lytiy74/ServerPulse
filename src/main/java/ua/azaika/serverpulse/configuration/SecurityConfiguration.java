@@ -25,8 +25,10 @@
 package ua.azaika.serverpulse.configuration;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -36,6 +38,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import ua.azaika.serverpulse.repository.UserRepository;
+import ua.azaika.serverpulse.service.CustomUserDetailsService;
 
 /**
  * @author Andrii Zaika
@@ -43,6 +46,7 @@ import ua.azaika.serverpulse.repository.UserRepository;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfiguration {
 
     @Bean
@@ -66,8 +70,17 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    @Profile("dev")
     UserDetailsService userDetailsService(UserRepository userRepository) {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User '" + username + "' not found"));
+        log.info("dev");
+        return new CustomUserDetailsService(userRepository);
     }
+
+    @Bean
+    @Profile("test")
+    UserDetailsService testDetailsService(UserRepository userRepository) {
+        log.info("test");
+        return new CustomUserDetailsService(userRepository);
+    } // вчу профіля)) видалити
+
 }
