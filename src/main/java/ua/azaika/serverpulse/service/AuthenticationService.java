@@ -25,32 +25,74 @@
 package ua.azaika.serverpulse.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ua.azaika.serverpulse.dto.auth.JwtAuthenticationResponseDTO;
+import ua.azaika.serverpulse.dto.auth.SignInRequestDTO;
 import ua.azaika.serverpulse.dto.auth.SignUpRequestDTO;
 import ua.azaika.serverpulse.dto.auth.UserResponseDTO;
+import ua.azaika.serverpulse.entity.CustomUserDetails;
+import ua.azaika.serverpulse.entity.Role;
 import ua.azaika.serverpulse.entity.UserEntity;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Andrii Zaika
  */
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserService userService;
+    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
-    public UserResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
+    public JwtAuthenticationResponseDTO signUp(SignUpRequestDTO request) {
+        log.info("Register new user: {}", request.username());
         UserEntity userEntity = UserEntity.builder()
-                .username(signUpRequestDTO.username())
-                .email(signUpRequestDTO.email())
-                .password(passwordEncoder.encode(signUpRequestDTO.password()))
-                .role(null) // todo
+                .username(request.username())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .role(Role.USER)
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return userService.signUp(userEntity);
+        userService.signUp(userEntity);
+
+        log.info("Registration successful for user: {}", request.username());
+
+        return generateTokenByUser(userEntity);
+    }
+
+    public JwtAuthenticationResponseDTO signIn(SignInRequestDTO request) {
+        log.info("Sign in for user: {}", request.login());
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                request.login(),
+                request.password()
+        ));
+
+        CustomUserDetails userEntity = (CustomUserDetails) authentication.getPrincipal();
+        log.info("Successful login attempt for user: {}", request.login());
+
+        return generateTokenByUser(userEntity.getUser());
+    }
+
+    private JwtAuthenticationResponseDTO generateTokenByUser(UserEntity userEntity) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", userEntity.getRole());
+
+        String jwt = jwtService.generateTokenWithClaims(new CustomUserDetails(userEntity), claims);
+        return new JwtAuthenticationResponseDTO(jwt);
     }
 }

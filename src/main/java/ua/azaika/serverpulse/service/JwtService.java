@@ -60,7 +60,8 @@ public class JwtService {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationTime);
 
-        return Jwts.builder().claims(extraClaims) // доп. поля мжт мы захочем в него положить имя своего кота, хз
+        return Jwts.builder()
+                .claims(extraClaims) // доп. поля мжт мы захочем в него положить имя своего кота, хз
                 .subject(userDetails.getUsername()) // для кого токен
                 .issuedAt(now) // когда подписали?
                 .expiration(expiry) // термін дії токену
@@ -93,6 +94,13 @@ public class JwtService {
      */
     public Optional<String> extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    /**
+     * Извлечение логина (subject) из токена.
+     */
+    public Optional<String> extractAuthority(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     /**

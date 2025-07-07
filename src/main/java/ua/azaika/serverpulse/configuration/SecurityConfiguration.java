@@ -29,6 +29,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -49,6 +53,8 @@ import ua.azaika.serverpulse.service.CustomUserDetailsService;
 @Slf4j
 public class SecurityConfiguration {
 
+    private final UserRepository userRepository;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
@@ -57,11 +63,13 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/h2-console/**",
-                                "swagger-ui/**"
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
                         ).permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
-                ).build();
+                )
+                .build();
     }
 
     @Bean
@@ -70,17 +78,21 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    @Profile("dev")
-    UserDetailsService userDetailsService(UserRepository userRepository) {
-        log.info("dev");
+    public UserDetailsService userDetailsService() {
         return new CustomUserDetailsService(userRepository);
     }
 
     @Bean
-    @Profile("test")
-    UserDetailsService testDetailsService(UserRepository userRepository) {
-        log.info("test");
-        return new CustomUserDetailsService(userRepository);
-    } // вчу профіля)) видалити
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
 
 }
