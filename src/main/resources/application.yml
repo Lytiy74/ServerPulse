@@ -11,6 +11,6 @@ spring:
     active: dev
 
 jwt:
-  secret: "123"
+  secret: "${JWT_SECRET:defaultSecret}"
   token:
     expirationInMillis: 3600000
