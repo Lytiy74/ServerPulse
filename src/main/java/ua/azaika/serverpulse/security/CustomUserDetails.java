@@ -1,8 +1,9 @@
-package ua.azaika.serverpulse.entity;
+package ua.azaika.serverpulse.security;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ua.azaika.serverpulse.entity.UserEntity;
 
 import java.util.Collection;
 

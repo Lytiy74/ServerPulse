@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import ua.azaika.serverpulse.dto.auth.JwtAuthenticationResponseDTO;
 import ua.azaika.serverpulse.dto.auth.SignInRequestDTO;
 import ua.azaika.serverpulse.dto.auth.SignUpRequestDTO;
-import ua.azaika.serverpulse.entity.CustomUserDetails;
+import ua.azaika.serverpulse.security.CustomUserDetails;
 import ua.azaika.serverpulse.entity.Role;
 import ua.azaika.serverpulse.entity.UserEntity;
 

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import ua.azaika.serverpulse.entity.CustomUserDetails;
+import ua.azaika.serverpulse.security.CustomUserDetails;
 import ua.azaika.serverpulse.entity.UserEntity;
 
 import javax.crypto.SecretKey;
