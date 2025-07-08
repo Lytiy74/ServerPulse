@@ -40,7 +40,7 @@ public class AuthenticationService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        userService.signUp(userEntity);
+        userService.create(userEntity);
 
         log.info("Registration successful for user: {}", request.username());
 

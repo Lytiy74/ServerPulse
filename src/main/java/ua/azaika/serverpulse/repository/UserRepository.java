@@ -24,6 +24,8 @@
 
 package ua.azaika.serverpulse.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ua.azaika.serverpulse.entity.UserEntity;
 
@@ -37,4 +39,8 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
 
     Optional<UserEntity> findByUsername(String username);
     Optional<UserEntity> findByEmail(String email);
+
+    boolean existsByUsername(String username);
+
+    Page<UserEntity> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }
