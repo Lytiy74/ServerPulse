@@ -29,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.azaika.serverpulse.dto.auth.SignUpRequestDTO;
 import ua.azaika.serverpulse.dto.auth.UserResponseDTO;
+import ua.azaika.serverpulse.entity.Role;
 import ua.azaika.serverpulse.entity.UserEntity;
 
 import java.time.LocalDateTime;
