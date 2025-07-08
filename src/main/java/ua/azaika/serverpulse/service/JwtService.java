@@ -1,120 +1,115 @@
 package ua.azaika.serverpulse.service;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import ua.azaika.serverpulse.entity.CustomUserDetails;
+import ua.azaika.serverpulse.entity.UserEntity;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
+import java.security.Key;
+import java.util.*;
 import java.util.function.Function;
 
-
-@Service
 @Slf4j
+@Service
 public class JwtService {
 
-    // jwt - Это header.payload.signature
-    // -> HEADER - алгоритм + имя токена
-    // -> payload - это claims (имя кота, наше имя, роль, дата создания + окончания токена)
-    // -> эта часть гарантирует целостность токена, типа не изменят payload потому что подпись(этот блок) не сойдется
-
     @Value("${jwt.secret}")
-    private String jwtSecret;
+    private String secretKey;
 
     @Value("${jwt.token.expirationInMillis}")
-    private long expirationTime; // 24 часа
+    private long jwtExpiration;
 
-    private SecretKey signingKey;
-
-    /**
-     * Ключ декодируется и создаётся один раз при старте — оптимизация.
-     */
-    @PostConstruct
-    private void initSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        this.signingKey = Keys.hmacShaKeyFor(keyBytes);
-        log.debug("JWT signing key initialized.");
-    }
-
-
-    /**
-     * Генерация простого токена (без дополнительных claims).
-     */
     public String generateToken(UserDetails userDetails) {
-        return generateTokenWithClaims(userDetails, Map.of());
+        Map<String, Object> claims = new HashMap<>();
+
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        claims.put("roles", roles);
+
+        if (userDetails instanceof CustomUserDetails customUserDetails) {
+            UserEntity userEntity = customUserDetails.getUser();
+            if (userEntity.getId() != null) {
+                claims.put("uuid", userEntity.getId().toString());
+            } else {
+                log.warn("UserEntity ID is null, cannot add UUID claim to JWT.");
+            }
+        } else {
+            log.warn("UserDetails is not CustomUserDetails, cannot add UUID claim to JWT.");
+        }
+
+        return buildToken(claims, userDetails, jwtExpiration);
     }
 
-    /**
-     * Генерация токена с дополнительными claims.
-     */
-    public String generateTokenWithClaims(UserDetails userDetails, Map<String, Object> extraClaims) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + expirationTime);
-
-        return Jwts.builder()
-                .claims(extraClaims) // доп. поля мжт мы захочем в него положить имя своего кота, хз
-                .subject(userDetails.getUsername()) // для кого токен
-                .issuedAt(now) // когда подписали?
-                .expiration(expiry) // термін дії токену
-                .signWith(signingKey) // вот тут важно, факт того что мы (сервер) подписали токен,
-                // а выше метод initSigningKey() где мы вставили секрет и сгенерировали SecretKey
+    private String buildToken(
+            Map<String, Object> extraClaims,
+            UserDetails userDetails,
+            long expiration
+    ) {
+        return Jwts
+                .builder()
+                .claims(extraClaims)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignInKey())
                 .compact();
     }
 
-    /**
-     * Извлечение всех claims, обернутое в Optional — безопаснее.
-     */
-    public Optional<Claims> tryExtractAllClaims(String token) {
+    public Optional<String> extractUsername(String token) {
+        return Optional.ofNullable(extractClaim(token, Claims::getSubject));
+    }
+
+    public Optional<List<String>> extractRoles(String token) {
+        return Optional.ofNullable(extractClaim(token, claims -> claims.get("roles", List.class)));
+    }
+
+    public Optional<String> extractId(String token) {
+        return Optional.ofNullable(extractClaim(token, claims -> claims.get("uuid", String.class)));
+    }
+
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts
+                .parser()
+                .verifyWith((SecretKey) getSignInKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    private Key getSignInKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public boolean isTokenValid(String token) {
         try {
-            return Optional.of(Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload());
-        } catch (JwtException e) {
-            log.warn("JWT parsing failed: {}", e.getMessage());
-            return Optional.empty();
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            log.error("JWT validation error: {}", e.getMessage());
+            return false;
         }
     }
 
-    /**
-     * Универсальный метод для извлечения конкретного claim.
-     */
-    public <T> Optional<T> extractClaim(String token, Function<Claims, T> resolver) {
-        return tryExtractAllClaims(token).map(resolver);
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
     }
 
-    /**
-     * Извлечение логина (subject) из токена.
-     */
-    public Optional<String> extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
-
-    /**
-     * Извлечение логина (subject) из токена.
-     */
-    public Optional<String> extractAuthority(String token) {
-        return extractClaim(token, claims -> claims.get("role", String.class));
-    }
-
-    /**
-     * Проверка, не протух ли токен.
-     */
-    public boolean isTokenNotExpired(String token) {
-        return extractClaim(token, Claims::getExpiration).map(exp -> exp.after(new Date())).orElse(false);
-    }
-
-    /**
-     * Валидность токена по сроку + что логин совпадает.
-     */
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        return extractUsername(token).map(username -> username.equals(userDetails.getUsername()) && isTokenNotExpired(token)).orElse(false);
-    }
-
 }
