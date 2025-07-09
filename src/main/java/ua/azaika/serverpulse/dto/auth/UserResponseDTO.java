@@ -24,10 +24,16 @@
 
 package ua.azaika.serverpulse.dto.auth;
 
+import ua.azaika.serverpulse.entity.Role;
+
+import java.util.List;
+
 /**
  * @author Andrii Zaika
  */
 public record UserResponseDTO(
-        String username
+        String username,
+        String email,
+        List<Role> roles
 ) {
 }

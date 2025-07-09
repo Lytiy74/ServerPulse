@@ -27,7 +27,10 @@ package ua.azaika.serverpulse.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ua.azaika.serverpulse.dto.UserPatchDTO;
+import ua.azaika.serverpulse.dto.UserUpdateDTO;
 import ua.azaika.serverpulse.dto.auth.UserResponseDTO;
 import ua.azaika.serverpulse.entity.UserEntity;
 import ua.azaika.serverpulse.exception.UserAlreadyExistsException;
@@ -45,6 +48,9 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository repository;
     private final UserMapper mapper;
+    private final PasswordEncoder passwordEncoder;
+
+    private static final String USER_NOT_FOUND_MESSAGE = "User with uuid %s not found";
 
     public UserResponseDTO create(UserEntity userEntity) {
         if (repository.existsByUsername((userEntity.getUsername()))) {
@@ -56,21 +62,7 @@ public class UserService {
 
     public UserResponseDTO findById(String uuid){
         UserEntity userEntity = repository.findById(UUID.fromString(uuid)).orElseThrow(
-                () -> new UserNotFoundException("User with uuid" + uuid + " not found")
-        );
-        return mapper.toDto(userEntity);
-    }
-
-    public UserResponseDTO findByUsername(String username) {
-        UserEntity userEntity = repository.findByUsername(username).orElseThrow(
-                () -> new UserNotFoundException("User with username " + username + " not found")
-        );
-        return mapper.toDto(userEntity);
-    }
-
-    public UserResponseDTO findByEmail(String email) {
-        UserEntity userEntity = repository.findByEmail(email).orElseThrow(
-                () -> new UserNotFoundException("User with email " + email + " not found")
+                () -> new UserNotFoundException(String.format(USER_NOT_FOUND_MESSAGE, uuid))
         );
         return mapper.toDto(userEntity);
     }
@@ -79,4 +71,36 @@ public class UserService {
         Page<UserEntity> page = repository.findAll(pageable);
         return page.map(mapper::toDto);
     }
+
+    public UserResponseDTO patch(String uuid, UserPatchDTO dto) {
+        UserEntity userEntity = repository.findById(UUID.fromString(uuid)).orElseThrow(
+                () -> new UserNotFoundException(String.format(USER_NOT_FOUND_MESSAGE, uuid))
+        );
+        if (dto.username() != null) userEntity.setUsername(dto.username());
+        if (dto.email() != null) userEntity.setEmail(dto.email());
+        if (dto.password() != null) userEntity.setPassword(passwordEncoder.encode(dto.password()));
+        if (dto.roles() != null) userEntity.setRoles(dto.roles());
+        repository.save(userEntity);
+        return mapper.toDto(userEntity);
+    }
+
+    public UserResponseDTO update(String uuid, UserUpdateDTO dto){
+        UserEntity userEntity = repository.findById(UUID.fromString(uuid)).orElseThrow(
+                () -> new UserNotFoundException(String.format(USER_NOT_FOUND_MESSAGE, uuid))
+        );
+        userEntity.setUsername(dto.username());
+        userEntity.setEmail(dto.email());
+        userEntity.setPassword(passwordEncoder.encode(dto.password()));
+        userEntity.setRoles(dto.roles());
+        repository.save(userEntity);
+        return mapper.toDto(userEntity);
+    }
+
+    public void delete(String uuid) {
+        UserEntity userEntity = repository.findById(UUID.fromString(uuid)).orElseThrow(
+                () -> new UserNotFoundException(String.format(USER_NOT_FOUND_MESSAGE, uuid))
+        );
+        repository.delete(userEntity);
+    }
+
 }
