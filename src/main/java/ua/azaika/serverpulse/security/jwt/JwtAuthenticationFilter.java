@@ -1,4 +1,4 @@
-package ua.azaika.serverpulse.jwt;
+package ua.azaika.serverpulse.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
