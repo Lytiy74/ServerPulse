@@ -31,7 +31,6 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public JwtAuthenticationResponseDTO signUp(SignUpRequestDTO request) {
-        log.info("Register new user: {}", request.username());
         UserEntity userEntity = UserEntity.builder()
                 .username(request.username())
                 .email(request.email())
@@ -42,14 +41,10 @@ public class AuthenticationService {
 
         userService.create(userEntity);
 
-        log.info("Registration successful for user: {}", request.username());
-
         return generateTokenByUser(userEntity);
     }
 
     public JwtAuthenticationResponseDTO signIn(SignInRequestDTO request) {
-        log.info("Sign in for user: {}", request.login());
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.login(),
@@ -57,7 +52,6 @@ public class AuthenticationService {
                 ));
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        log.info("Successful login attempt for user: {}", request.login());
 
         return generateTokenByUser(userDetails.getUser());
     }
