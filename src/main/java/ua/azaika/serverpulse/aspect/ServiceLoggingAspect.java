@@ -28,18 +28,18 @@ public class ServiceLoggingAspect {
         Object[] args = proceedingJoinPoint.getArgs();
         long startTime = System.currentTimeMillis();
 
-        log.info("[{}][{}] Service method {} invoked with args {}", className, methodName, methodName, Arrays.toString(args));
+        log.info("[{}][{}] Service method invoked with args {}", className, methodName, Arrays.toString(args));
 
         Object result = null;
         try {
             result = proceedingJoinPoint.proceed();
             long duration = System.currentTimeMillis() - startTime;
-            log.info("[{}][{}] Service method {} executed in {}ms. Result type: {}",
-                    className, methodName, methodName, duration, (result != null ? result.getClass().getSimpleName() : "void"));
+            log.info("[{}][{}] Service method executed in {}ms. Result type: {}",
+                    className, methodName, duration, (result != null ? result.getClass().getSimpleName() : "void"));
         } catch (Throwable e) {
             long duration = System.currentTimeMillis() - startTime;
-            log.error("[{}][{}] Service method {} failed in {}ms with exception: {}",
-                    className, methodName, methodName, duration, e.getMessage(), e);
+            log.error("[{}][{}] Service method failed in {}ms with exception: {}",
+                    className, methodName, duration, e.getMessage(), e);
             throw e;
         }
         return result;
