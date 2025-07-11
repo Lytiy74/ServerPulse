@@ -30,23 +30,23 @@ public class AuthenticationLoggingAspect {
     public Object logAuthenticationSignUp(ProceedingJoinPoint joinPoint) throws Throwable {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
-        String loginToLog = "UNKNOWN_LOGIN";
+        String usernameToLog = "UNKNOWN_USER";
 
         if (joinPoint.getArgs().length > 0 && joinPoint.getArgs()[0] instanceof SignUpRequestDTO signUpRequestDTO) {
-            loginToLog = signUpRequestDTO.username();
+            usernameToLog = signUpRequestDTO.username();
         }
 
         Object result;
 
         try {
-            log.debug("[{}][{}] Attempting sign up for user: {}", className, methodName, loginToLog);
+            log.debug("[{}][{}] Attempting sign up for user: {}", className, methodName, usernameToLog);
             result = joinPoint.proceed();
-            log.debug("[{}][{}] User: {} signed up successfully", className, methodName, loginToLog);
+            log.info("[{}][{}] User: {} signed up successfully", className, methodName, usernameToLog);
         } catch (UserAlreadyExistsException e) {
-            log.warn("[{}][{}] Sign up failed for user {}: {}", className, methodName, loginToLog, e.getMessage());
+            log.warn("[{}][{}] Sign up failed for user {}: {}", className, methodName, usernameToLog, e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.error("[{}][{}] Unexpected error during sign up for user: {}", className, methodName, loginToLog, e);
+            log.error("[{}][{}] Unexpected error during sign up for user: {}", className, methodName, usernameToLog, e);
             throw e;
         }
         return result;
@@ -67,7 +67,7 @@ public class AuthenticationLoggingAspect {
         try {
             log.debug("[{}][{}] Attempting sign in for user: {}", className, methodName, loginToLog);
             result = joinPoint.proceed();
-            log.debug("[{}][{}] User: {} signed in successfully", className, methodName, loginToLog);
+            log.info("[{}][{}] User: {} signed in successfully", className, methodName, loginToLog);
         } catch (UsernameNotFoundException | BadCredentialsException e) {
             log.warn("[{}][{}] Sign in failed for user {}: {}", className, methodName, loginToLog, e.getMessage());
             throw e;
