@@ -40,4 +40,11 @@ public record SignUpRequestDTO(
         @Length(min = 8, max = 64)
         String password
 ) {
+    @Override
+    public String toString() {
+        return "SignUpRequestDTO{" +
+                "username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }
