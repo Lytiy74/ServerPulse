@@ -18,6 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
+@ToString(exclude = {"password"})
 public class UserEntity {
 
     @Id

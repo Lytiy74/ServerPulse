@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import ua.azaika.serverpulse.security.CustomUserDetails;
 import ua.azaika.serverpulse.entity.UserEntity;
+import ua.azaika.serverpulse.exception.JwtTokenGenerationException;
+import ua.azaika.serverpulse.exception.JwtTokenValidationException;
+import ua.azaika.serverpulse.security.CustomUserDetails;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -40,10 +42,10 @@ public class JwtService {
             if (userEntity.getId() != null) {
                 claims.put("uuid", userEntity.getId().toString());
             } else {
-                log.warn("UserEntity ID is null, cannot add UUID claim to JWT.");
+                throw new JwtTokenGenerationException("User ID is null, cannot add UUID claim to JWT.");
             }
         } else {
-            log.warn("UserDetails is not CustomUserDetails, cannot add UUID claim to JWT.");
+            throw new JwtTokenGenerationException("User details is not an instance of CustomUserDetails, cannot add UUID claim to JWT.");
         }
 
         return buildToken(claims, userDetails, jwtExpiration);
@@ -100,8 +102,7 @@ public class JwtService {
         try {
             return !isTokenExpired(token);
         } catch (Exception e) {
-            log.error("JWT validation error: {}", e.getMessage());
-            return false;
+            throw new JwtTokenValidationException("JWT token validation error " + e.getMessage());
         }
     }
 

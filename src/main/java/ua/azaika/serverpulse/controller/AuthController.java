@@ -26,6 +26,7 @@ package ua.azaika.serverpulse.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ua.azaika.serverpulse.dto.auth.JwtAuthenticationResponseDTO;
 import ua.azaika.serverpulse.dto.auth.SignInRequestDTO;
 import ua.azaika.serverpulse.dto.auth.SignUpRequestDTO;
-
 import ua.azaika.serverpulse.service.AuthenticationService;
 
 /**
@@ -46,14 +46,14 @@ public class AuthController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/sign-up")
-    public JwtAuthenticationResponseDTO signUp(
+    public ResponseEntity<JwtAuthenticationResponseDTO> signUp(
             @Valid @RequestBody SignUpRequestDTO signUpRequestDTO) {
-        return authenticationService.signUp(signUpRequestDTO);
+        return ResponseEntity.ok(authenticationService.signUp(signUpRequestDTO));
     }
 
     @PostMapping("/sign-in")
-    public JwtAuthenticationResponseDTO signIn(
+    public ResponseEntity<JwtAuthenticationResponseDTO> signIn(
             @Valid @RequestBody SignInRequestDTO signInRequestDTO) {
-        return authenticationService.signIn(signInRequestDTO);
+        return ResponseEntity.ok(authenticationService.signIn(signInRequestDTO));
     }
 }

@@ -15,4 +15,10 @@ public record SignInRequestDTO(
         @NotBlank(message = "Password cannot be blank")
         String password
 ) {
+    @Override
+    public String toString() {
+        return "SignInRequestDTO{" +
+                "login='" + login + '\'' +
+                '}';
+    }
 }
