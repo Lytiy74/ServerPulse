@@ -24,6 +24,11 @@
 
 package ua.azaika.serverpulse.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -45,12 +50,30 @@ import ua.azaika.serverpulse.service.AuthenticationService;
 public class AuthController {
     private final AuthenticationService authenticationService;
 
+    @Operation(summary = "Sign Up user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User created successfully",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = JwtAuthenticationResponseDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Invalid input provided",
+                    content = @Content())
+    })
     @PostMapping("/sign-up")
     public ResponseEntity<JwtAuthenticationResponseDTO> signUp(
             @Valid @RequestBody SignUpRequestDTO signUpRequestDTO) {
         return ResponseEntity.ok(authenticationService.signUp(signUpRequestDTO));
     }
 
+    @Operation(summary = "Sign In user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User signed in successfully",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = JwtAuthenticationResponseDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Invalid input provided",
+                    content = @Content()),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                    content = @Content()),
+    })
     @PostMapping("/sign-in")
     public ResponseEntity<JwtAuthenticationResponseDTO> signIn(
             @Valid @RequestBody SignInRequestDTO signInRequestDTO) {
