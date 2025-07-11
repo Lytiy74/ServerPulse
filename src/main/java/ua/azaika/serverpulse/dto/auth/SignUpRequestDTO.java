@@ -24,6 +24,7 @@
 
 package ua.azaika.serverpulse.dto.auth;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
@@ -33,11 +34,14 @@ import org.hibernate.validator.constraints.Length;
  */
 public record SignUpRequestDTO(
         @Length(min = 3, max = 64)
+        @Schema(description = "User login", example = "ServerPulse")
         String username,
         @Email
         @NotBlank
+        @Schema(description = "User email", example = "server@pulse.com")
         String email,
         @Length(min = 8, max = 64)
+        @Schema(description = "User password", example = "<PASSWORD>")
         String password
 ) {
     @Override

@@ -24,6 +24,7 @@
 
 package ua.azaika.serverpulse.dto.auth;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import ua.azaika.serverpulse.entity.Role;
 
 import java.util.List;
@@ -31,9 +32,13 @@ import java.util.List;
 /**
  * @author Andrii Zaika
  */
+@Schema(description = "User response")
 public record UserResponseDTO(
+        @Schema(description = "Username", example = "ServerPulse")
         String username,
+        @Schema(description = "User email", example = "server@pulse.com")
         String email,
+        @Schema(description = "User roles", example = "[\"USER\",\"ADMIN\"]")
         List<Role> roles
 ) {
 }
