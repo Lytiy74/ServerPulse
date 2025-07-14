@@ -31,6 +31,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,7 +62,7 @@ public class AuthController {
     @PostMapping("/sign-up")
     public ResponseEntity<JwtAuthenticationResponseDTO> signUp(
             @Valid @RequestBody SignUpRequestDTO signUpRequestDTO) {
-        return ResponseEntity.ok(authenticationService.signUp(signUpRequestDTO));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authenticationService.signUp(signUpRequestDTO));
     }
 
     @Operation(summary = "Sign In user")
