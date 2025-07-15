@@ -88,7 +88,7 @@ class AuthenticationServiceTest {
 
             JwtAuthenticationResponseDTO response = authenticationService.signUp(signUpRequestDTO);
 
-            verify(passwordEncoder, times(1)).encode(signInRequestDTO.password());
+            verify(passwordEncoder, times(1)).encode(signUpRequestDTO.password());
             verify(userService, times(1)).create(any(UserEntity.class));
             verify(jwtService, times(1)).generateToken(any(CustomUserDetails.class));
 
@@ -104,7 +104,7 @@ class AuthenticationServiceTest {
 
             assertThrows(UserAlreadyExistsException.class, () -> authenticationService.signUp(signUpRequestDTO));
 
-            verify(passwordEncoder, times(1)).encode(signInRequestDTO.password());
+            verify(passwordEncoder, times(1)).encode(signUpRequestDTO.password());
             verify(userService, times(1)).create(any(UserEntity.class));
             verify(jwtService, never()).generateToken(any(CustomUserDetails.class));
         }
