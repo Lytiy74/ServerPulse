@@ -18,7 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-@ToString(exclude = {"password"})
+@ToString(exclude = {"password", "servers"})
 public class UserEntity {
 
     @Id
@@ -46,4 +46,6 @@ public class UserEntity {
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ServerEntity> servers;
 }
