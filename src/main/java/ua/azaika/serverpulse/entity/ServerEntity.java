@@ -50,8 +50,8 @@ public class ServerEntity {
     private String ip;
     private String port;
     private Status status;
-    private short playerCount;
-    private short maxPlayerCount;
+    private Short playerCount;
+    private Short maxPlayerCount;
     private Integer score;
     private String version;
     private Locale.IsoCountryCode location;
