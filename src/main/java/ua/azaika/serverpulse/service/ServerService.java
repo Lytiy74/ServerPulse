@@ -25,6 +25,8 @@
 package ua.azaika.serverpulse.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ua.azaika.serverpulse.dto.ServerPostDTO;
 import ua.azaika.serverpulse.dto.ServerResponseDTO;
@@ -43,6 +45,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ServerService {
+    public static final String SERVER_NOT_FOUND_WITH_ID = "Server not found with id: ";
+    public static final String SERVER_NOT_FOUND_WITH_NAME = "Server not found with name: ";
     private final ServerRepository repository;
     private final ServerMapper mapper;
 
@@ -62,6 +66,45 @@ public class ServerService {
     public ServerResponseDTO getById(UUID id) {
         return repository.findById(id)
                 .map(mapper::toDto)
-                .orElseThrow(() -> new ServerNotFoundException("Server not found with id: " + id));
+                .orElseThrow(() -> new ServerNotFoundException(SERVER_NOT_FOUND_WITH_ID + id));
+    }
+
+    public Page<ServerResponseDTO> getAll(Pageable pageable) {
+        return repository.findAllByOrderByCreatedAtDesc(pageable)
+                .map(mapper::toDto);
+    }
+
+    public ServerResponseDTO getByName(String name) {
+        return repository.findByName(name)
+                .map(mapper::toDto)
+                .orElseThrow(() -> new ServerNotFoundException(SERVER_NOT_FOUND_WITH_NAME + name));
+    }
+
+    public ServerResponseDTO update(UUID id, ServerPostDTO dto) {
+        ServerEntity serverEntity = repository.findById(id)
+                .orElseThrow(() -> new ServerNotFoundException(SERVER_NOT_FOUND_WITH_ID + id));
+        serverEntity.setName(dto.name());
+        serverEntity.setIp(dto.ip());
+        serverEntity.setPort(dto.port());
+        serverEntity.setVersion(dto.version());
+        serverEntity.setDescription(dto.description());
+        serverEntity.setUpdatedAt(LocalDateTime.now());
+        return mapper.toDto(repository.save(serverEntity));
+    }
+
+    public ServerResponseDTO patch(UUID id, ServerPostDTO dto) {
+        ServerEntity serverEntity = repository.findById(id)
+                .orElseThrow(() -> new ServerNotFoundException(SERVER_NOT_FOUND_WITH_ID + id));
+        if (dto.name() != null) serverEntity.setName(dto.name());
+        if (dto.ip() != null) serverEntity.setIp(dto.ip());
+        if (dto.port() != null) serverEntity.setPort(dto.port());
+        if (dto.version() != null) serverEntity.setVersion(dto.version());
+        if (dto.description() != null) serverEntity.setDescription(dto.description());
+        serverEntity.setUpdatedAt(LocalDateTime.now());
+        return mapper.toDto(repository.save(serverEntity));
+    }
+
+    public void delete(UUID id) {
+        repository.deleteById(id);
     }
 }

@@ -24,10 +24,17 @@
 
 package ua.azaika.serverpulse.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ua.azaika.serverpulse.entity.ServerEntity;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ServerRepository extends JpaRepository<ServerEntity, UUID> {
+
+    Page<ServerEntity> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    Optional<ServerEntity> findByName(String name);
 }

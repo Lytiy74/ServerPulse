@@ -25,6 +25,9 @@
 package ua.azaika.serverpulse.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -57,6 +60,32 @@ public class ServerController {
     @GetMapping("/{id}")
     public ResponseEntity<ServerResponseDTO> getServerById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.getById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<ServerResponseDTO>> getServers(@ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(service.getAll(pageable));
+    }
+
+    @GetMapping
+    public ResponseEntity<ServerResponseDTO> getServerByName(@RequestParam String name) {
+        return ResponseEntity.ok(service.getByName(name));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ServerResponseDTO> updateServer(@PathVariable UUID id, @RequestBody ServerPostDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ServerResponseDTO> patchServer(@PathVariable UUID id, @RequestParam ServerPostDTO dto) {
+        return ResponseEntity.ok(service.patch(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteServer(@PathVariable UUID id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
