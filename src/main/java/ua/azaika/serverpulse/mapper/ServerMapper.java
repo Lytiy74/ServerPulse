@@ -22,38 +22,18 @@
  * SOFTWARE.
  */
 
-package ua.azaika.serverpulse.service;
+package ua.azaika.serverpulse.mapper;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import ua.azaika.serverpulse.dto.ServerPostDTO;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
 import ua.azaika.serverpulse.dto.ServerResponseDTO;
 import ua.azaika.serverpulse.entity.ServerEntity;
-import ua.azaika.serverpulse.entity.UserEntity;
-import ua.azaika.serverpulse.mapper.ServerMapper;
-import ua.azaika.serverpulse.repository.ServerRepository;
-
-import java.time.LocalDateTime;
 
 /**
  * @author Andrii Zaika
  */
-@Service
-@RequiredArgsConstructor
-public class ServerService {
-    private final ServerRepository repository;
-    private final ServerMapper mapper;
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface ServerMapper {
 
-    public ServerResponseDTO createServer(ServerPostDTO dto, UserEntity owner) {
-        ServerEntity server = ServerEntity.builder()
-                .name(dto.name())
-                .ip(dto.ip())
-                .port(dto.port())
-                .version(dto.version())
-                .description(dto.description())
-                .createdAt(LocalDateTime.now())
-                .owner(owner)
-                .build();
-        return mapper.toDto(repository.save(server));
-    }
+    ServerResponseDTO toDto(ServerEntity entity);
 }

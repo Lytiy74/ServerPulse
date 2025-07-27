@@ -22,38 +22,28 @@
  * SOFTWARE.
  */
 
-package ua.azaika.serverpulse.service;
+package ua.azaika.serverpulse.dto;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import ua.azaika.serverpulse.dto.ServerPostDTO;
-import ua.azaika.serverpulse.dto.ServerResponseDTO;
-import ua.azaika.serverpulse.entity.ServerEntity;
-import ua.azaika.serverpulse.entity.UserEntity;
-import ua.azaika.serverpulse.mapper.ServerMapper;
-import ua.azaika.serverpulse.repository.ServerRepository;
+import ua.azaika.serverpulse.entity.Status;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 /**
  * @author Andrii Zaika
  */
-@Service
-@RequiredArgsConstructor
-public class ServerService {
-    private final ServerRepository repository;
-    private final ServerMapper mapper;
-
-    public ServerResponseDTO createServer(ServerPostDTO dto, UserEntity owner) {
-        ServerEntity server = ServerEntity.builder()
-                .name(dto.name())
-                .ip(dto.ip())
-                .port(dto.port())
-                .version(dto.version())
-                .description(dto.description())
-                .createdAt(LocalDateTime.now())
-                .owner(owner)
-                .build();
-        return mapper.toDto(repository.save(server));
-    }
+public record ServerResponseDTO(
+        String name,
+        String ip,
+        String port,
+        Status status,
+        Short playerCount,
+        Short maxPlayerCount,
+        Integer score,
+        String version,
+        Locale.IsoCountryCode location,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+        String description
+) {
 }

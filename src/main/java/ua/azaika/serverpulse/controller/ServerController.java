@@ -25,6 +25,7 @@
 package ua.azaika.serverpulse.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,12 +33,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ua.azaika.serverpulse.dto.ServerPostDTO;
-import ua.azaika.serverpulse.entity.ServerEntity;
+import ua.azaika.serverpulse.dto.ServerResponseDTO;
 import ua.azaika.serverpulse.entity.UserEntity;
 import ua.azaika.serverpulse.security.CustomUserDetails;
 import ua.azaika.serverpulse.service.ServerService;
-
-import java.net.URI;
 
 /**
  * @author Andrii Zaika
@@ -49,11 +48,11 @@ public class ServerController {
     private final ServerService service;
 
     @PostMapping
-    public ResponseEntity<ServerEntity> createServer(@RequestBody ServerPostDTO dto,
-    @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ServerResponseDTO> createServer(@RequestBody ServerPostDTO dto,
+                                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
         UserEntity user = userDetails.getUser();
-        ServerEntity server = service.createServer(dto, user);
-        URI location = URI.create("/api/servers/"+ server.getUuid());
-        return ResponseEntity.created(location).body(server);
+        ServerResponseDTO responseDTO = service.createServer(dto, user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
+
 }
