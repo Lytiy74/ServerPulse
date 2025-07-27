@@ -30,10 +30,12 @@ import ua.azaika.serverpulse.dto.ServerPostDTO;
 import ua.azaika.serverpulse.dto.ServerResponseDTO;
 import ua.azaika.serverpulse.entity.ServerEntity;
 import ua.azaika.serverpulse.entity.UserEntity;
+import ua.azaika.serverpulse.exception.ServerNotFoundException;
 import ua.azaika.serverpulse.mapper.ServerMapper;
 import ua.azaika.serverpulse.repository.ServerRepository;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * @author Andrii Zaika
@@ -55,5 +57,11 @@ public class ServerService {
                 .owner(owner)
                 .build();
         return mapper.toDto(repository.save(server));
+    }
+
+    public ServerResponseDTO getById(UUID id) {
+        return repository.findById(id)
+                .map(mapper::toDto)
+                .orElseThrow(() -> new ServerNotFoundException("Server not found with id: " + id));
     }
 }

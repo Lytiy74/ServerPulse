@@ -28,15 +28,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ua.azaika.serverpulse.dto.ServerPostDTO;
 import ua.azaika.serverpulse.dto.ServerResponseDTO;
 import ua.azaika.serverpulse.entity.UserEntity;
 import ua.azaika.serverpulse.security.CustomUserDetails;
 import ua.azaika.serverpulse.service.ServerService;
+
+import java.util.UUID;
 
 /**
  * @author Andrii Zaika
@@ -53,6 +52,11 @@ public class ServerController {
         UserEntity user = userDetails.getUser();
         ServerResponseDTO responseDTO = service.createServer(dto, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ServerResponseDTO> getServerById(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
 }
