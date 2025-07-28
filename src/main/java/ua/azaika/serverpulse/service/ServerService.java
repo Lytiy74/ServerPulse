@@ -104,6 +104,8 @@ public class ServerService {
     }
 
     public void delete(UUID id) {
+        repository.findById(id)
+                .orElseThrow(() -> new ServerNotFoundException(SERVER_NOT_FOUND_WITH_ID + id));
         repository.deleteById(id);
     }
 }
