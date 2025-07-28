@@ -74,10 +74,9 @@ public class ServerService {
                 .map(mapper::toDto);
     }
 
-    public ServerResponseDTO getByName(String name) {
-        return repository.findByName(name)
-                .map(mapper::toDto)
-                .orElseThrow(() -> new ServerNotFoundException(SERVER_NOT_FOUND_WITH_NAME + name));
+    public Page<ServerResponseDTO> findByName(Pageable page, String name) {
+        return repository.findByNameIgnoreCase(page, name)
+                .map(mapper::toDto);
     }
 
     public ServerResponseDTO update(UUID id, ServerPostDTO dto) {

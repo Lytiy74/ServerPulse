@@ -63,13 +63,11 @@ public class ServerController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ServerResponseDTO>> getServers(@ParameterObject Pageable pageable) {
+    public ResponseEntity<Page<ServerResponseDTO>> getServers(@ParameterObject Pageable pageable, @RequestParam(required = false) String name) {
+        if (name != null) {
+            return ResponseEntity.ok(service.findByName(pageable, name));
+        }
         return ResponseEntity.ok(service.getAll(pageable));
-    }
-
-    @GetMapping
-    public ResponseEntity<ServerResponseDTO> getServerByName(@RequestParam String name) {
-        return ResponseEntity.ok(service.getByName(name));
     }
 
     @PutMapping("/{id}")
@@ -78,7 +76,7 @@ public class ServerController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ServerResponseDTO> patchServer(@PathVariable UUID id, @RequestParam ServerPostDTO dto) {
+    public ResponseEntity<ServerResponseDTO> patchServer(@PathVariable UUID id, @RequestBody ServerPostDTO dto) {
         return ResponseEntity.ok(service.patch(id, dto));
     }
 
