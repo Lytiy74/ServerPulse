@@ -74,6 +74,7 @@ public class ServerEntity {
     private String version;
 
     @Column(name = "location")
+    @Enumerated(EnumType.STRING)
     private Locale.IsoCountryCode location;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -86,6 +87,7 @@ public class ServerEntity {
     private String description;
 
     @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
     private UserEntity owner;
 
 
